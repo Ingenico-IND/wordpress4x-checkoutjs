@@ -1,3 +1,3 @@
 1. Download the repository
-2. Zip the ingenico_checkoutjs folder
-3. Upload the ingenico_checkoutjs.zip plugin
+2. Zip the worldline_checkoutjs folder
+3. Upload the worldline_checkoutjs.zip plugin

@@ -1,0 +1,6 @@
+
+worldline Request:T206030|781735|1.00||cons397515|123456789|abhishekdev183@gmail.com||||||||||3976262521OAOQBJ
+worldline Request:T206030|33774|1.00||cons115321|123456789|abhishekdev183@gmail.com||||||||||3976262521OAOQBJ
+worldline Response:0399|failure||33774|470|1582322684|1.00|{itc:}{custname:abhishek dev}{orderid:103}{email:abhishekdev183@gmail.com}{mob:123456789}|05-10-2021 20:16:28|NA||TEST BANK|0||dcd02042-2af1-498e-b6ad-221830c8aadb|9c8261221b1de3c8eb2e32b71ae134e5cb71a8f1b19f79de1b9cc1db4b3f9164db011ccfe5eebcdaad2a8abf9509e95ab8c043682e5b37ea395d9b3fbbfa880a
+worldline Request:T206030|865428|1.00||cons891123|123456789|abhishekdev183@gmail.com||||||||||3976262521OAOQBJ
+worldline Response:0300|success|NA|865428|470|1582325426|1.00|{itc:}{custname:abhishek dev}{orderid:104}{email:abhishekdev183@gmail.com}{mob:123456789}|05-10-2021 20:18:33|NA||TEST BANK|1111582325426||8bdaaa25-dcea-48e0-a417-c83af8d45bba|22cf0b5d151b24947841cbaf3648fbafacf852e507c9bf82e5d781d527d25fb9fd1f77022a600cd43cb2493d5644297763151111c8e6912f3678384747ecc20f
