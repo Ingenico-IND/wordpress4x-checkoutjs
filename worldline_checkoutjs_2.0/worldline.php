@@ -156,7 +156,7 @@ EOT;
 					'desc_tip'    => true,
 					'placeholder' => __('worldline', 'woocommerce'),
 					'description' => __('Your desired title name  will be show during checkout proccess.', 'worldline'),
-					'default' => __('worldline', 'worldline')
+					'default' => __('Cards/Netbanking/UPI', 'worldline')
 				),
 				'description' => array(
 					'title' => __('<span style="color: #a00;">* </span>Description:', 'worldline'),
