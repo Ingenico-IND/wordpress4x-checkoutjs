@@ -3,10 +3,9 @@
 Plugin Name: Worldline
 Plugin URI: 
 Description: Worldline ePayments is India's leading digital payment solutions company. Being a company with more than 45 years of global payment experience, we are present in India for over 20 years and are powering over 550,000 businesses with our tailored payment solution.
-Version: 2.0 
-Author: Worldline
-Author URI: https://www.worldline.com/
-
+Version: 1.0 
+Author: Wordldline
+Author URI: https://www.worldline.com
 Copyright: 
 License: 
 License URI: 
@@ -19,11 +18,11 @@ register_activation_hook(__FILE__, 'database_install1');
 include_once(dirname(__FILE__) . '/offline.php');
 include_once(dirname(__FILE__) . '/reconcilation.php');
 
-add_action('plugins_loaded', 'woocommerce_worldline_init', 0);
+add_action('plugins_loaded', 'woocommerce_paynimo_init', 0);
 add_action('rest_api_init', 'my_S2S_route');
 
 
-function woocommerce_worldline_init()
+function woocommerce_paynimo_init()
 {
 	if (!class_exists('WC_Payment_Gateway')) return;
 	class WC_worldline extends WC_Payment_Gateway
@@ -85,7 +84,7 @@ function woocommerce_worldline_init()
 			add_action('woocommerce_api_wc_worldline', array($this, 'check_paynimo_response'));
 			add_action('woocommerce_admin_order_data_after_billing_address', array($this, 'display_merchantid_backend'), 10, 1);
 			add_action('woocommerce_receipt_worldline', array($this, 'receipt_page'));
-			add_action('init', array($this, 'register_session'));
+			add_action('init', 'register_session');
 			if (isset($_POST['worldline_cus_cancel'])) {
 				wc_add_notice("Payment cancelled", "error");
 			}
@@ -116,11 +115,9 @@ function woocommerce_worldline_init()
 			}
 		}
 
-
 		/**
 		 * Generates the order form
 		 **/
-
 		function generateOrderForm()
 		{
 			$wc_co_url = wc_get_checkout_url();
@@ -138,15 +135,13 @@ Please wait while we are processing your payment.
 EOT;
 		}
 
-		// 
-
 		function init_form_fields()
 		{
 			$this->form_fields = array(
 				'enabled' => array(
 					'title' => __('Enable/Disable', 'worldline'),
 					'type' => 'checkbox',
-					'label' => __('Enable worldline Payment Module.', 'worldline'),
+					'label' => __('Enable Worldline Payment Module.', 'worldline'),
 					'default' => 'no'
 				),
 				'title' => array(
@@ -154,8 +149,8 @@ EOT;
 					'type' => 'text',
 					'id' => "title",
 					'desc_tip'    => true,
-					'placeholder' => __('worldline', 'woocommerce'),
-					'description' => __('Your desired title name  will be show during checkout proccess.', 'worldline'),
+					'placeholder' => __('Worldline', 'woocommerce'),
+					'description' => __('Your desired title name will be show during checkout proccess.', 'worldline'),
 					'default' => __('Cards / UPI / Netbanking / Wallets', 'worldline')
 				),
 				'description' => array(
@@ -255,7 +250,7 @@ EOT;
 					'type'        => 'select',
 					'class'    => 'chosen_select',
 					'css'      => 'min-width:350px;',
-					'description' => __('If Bank selection is at worldline ePayments India Pvt. Ltd. (a Worldline brand) end then select all, if bank selection at Merchant end then pass appropriate mode respective to selected option', 'woocommerce'),
+					'description' => __('If Bank selection is at worldline ePayments India Pvt. Ltd. end then select all, if bank selection at Merchant end then pass appropriate mode respective to selected option', 'woocommerce'),
 					'default'     => 'all',
 					'desc_tip'    => false,
 					'options'     => array(
@@ -477,9 +472,6 @@ EOT;
 			$order = wc_get_order($order_id);
 
 			$transaction_id = $order->get_transaction_id();
-			if (!$transaction_id) {
-				$transaction_id = $order->transaction_id;
-			}
 			$order_date = $order->get_date_created()->format('d-m-Y');
 			$currency = $order->get_currency();
 			$merchant_code = $this->worldline_merchant_code;
@@ -517,19 +509,13 @@ EOT;
 			$status_code = $response_array->paymentMethod->paymentTransaction->statusCode;
 			$status_message = $response_array->paymentMethod->paymentTransaction->statusMessage;
 			$error_message = $response_array->paymentMethod->paymentTransaction->errorMessage;
-			if ($error_message) {
-				$show_refund_message = $status_message . ": " . $error_message;
-			} else {
-				$show_refund_message = $status_message;
-			}
-
 			if ($status_code == '0400') {
 				$order->add_order_note($status_message, $is_customer_note = 1, $added_by_user = false);
 				return true;
 			} else if ($status_code == '0399') {
 				return new WP_Error('error', 'Refund not Applicable');
 			} else {
-				return new WP_Error('error', $show_refund_message);
+				return new WP_Error('error', $status_message);
 			}
 		}
 
@@ -610,8 +596,6 @@ EOT;
 			}
 			return null;
 		}
-
-
 		function check_paynimo_response()
 		{
 			global $woocommerce;
@@ -621,7 +605,6 @@ EOT;
 			$currency = get_woocommerce_currency();
 			$transactionCancelInProccess = false;
 			if ($_POST) {
-
 				$response = $_POST;
 				if (is_array($response)) {
 					$str = $response['msg'];
@@ -723,6 +706,7 @@ EOT;
 				}
 				$woocommerce->set_messages();
 			}
+
 			if ($transactionCancelInProccess) {
 				$redirect_url = get_permalink(woocommerce_get_page_id('myaccount'));
 				wp_redirect($redirect_url);
@@ -737,7 +721,6 @@ EOT;
 		public function generate_paynimo_form($order_id)
 		{
 			global $woocommerce;
-
 			$order = new WC_Order($order_id);
 			$woocommerce->session->order_id = $order_id;
 			$order_id = $order_id . '_' . date("ymds");
@@ -749,18 +732,13 @@ EOT;
 			} else {
 				$amount = $order->get_total();
 			}
-
 			$customerMobNumber = $order->get_billing_phone();
 			if (strpos($customerMobNumber, '+') !== false) {
 				$customerMobNumber = str_replace("+", "", $customerMobNumber);
 			}
-
 			$merchantTxnRefNumber = rand(1, 1000000);
-
 			global $wpdb;
-
 			$table_name = $wpdb->prefix . 'worldlinedetails';
-
 			$wpdb->insert(
 				$table_name,
 				array(
@@ -768,7 +746,6 @@ EOT;
 					'merchantid' => $merchantTxnRefNumber,
 				)
 			);
-
 			$cusid = $order->get_customer_id();
 			if (!$cusid) {
 				$cusid_raw = rand(1, 1000000);
@@ -812,7 +789,7 @@ EOT;
 			$data['separateCardMode'] = (int)$this->separateCardMode;
 			$data['enableMerTxnDetails'] = (int)$this->enableMerTxnDetails;
 			$data['saveInstrument'] = (int)$this->saveInstrument;
-			$data['checkout_url'] = get_permalink(wc_get_page_id('checkout'));
+			$data['checkout_url'] = wc_get_checkout_url();
 			$data['txnType'] = $this->txnType;
 			$data['merchantMsg'] = $this->merchantMsg;
 			$data['disclaimerMsg'] = $this->disclaimerMsg;
@@ -820,35 +797,17 @@ EOT;
 			$data['checkoutElement'] = $this->checkoutElement;
 			$payment_order_mode_raw =  $this->payment_mode_order;
 			$payment_order_mode =  explode(",", $payment_order_mode_raw);
-
-			$payment_order_mode[0] = (isset($payment_order_mode[0])) ? $payment_order_mode[0] : null;
-			$payment_order_mode[1] = (isset($payment_order_mode[1])) ? $payment_order_mode[1] : null;
-			$payment_order_mode[2] = (isset($payment_order_mode[2])) ? $payment_order_mode[2] : null;
-			$payment_order_mode[3] = (isset($payment_order_mode[3])) ? $payment_order_mode[3] : null;
-			$payment_order_mode[4] = (isset($payment_order_mode[4])) ? $payment_order_mode[4] : null;
-			$payment_order_mode[5] = (isset($payment_order_mode[5])) ? $payment_order_mode[5] : null;
-			$payment_order_mode[6] = (isset($payment_order_mode[6])) ? $payment_order_mode[6] : null;
-			$payment_order_mode[7] = (isset($payment_order_mode[7])) ? $payment_order_mode[7] : null;
-			$payment_order_mode[8] = (isset($payment_order_mode[8])) ? $payment_order_mode[8] : null;
-			$payment_order_mode[9] = (isset($payment_order_mode[9])) ? $payment_order_mode[9] : null;
-
-
-			if (!$payment_order_mode_raw) {
-				$data['paymentModeOrder'] = ["wallets", "cards", "netBanking", "imps", "cashCards", "UPI", "MVISA", "debitPin", "emiBanks", "NEFTRTGS"];
+			if(isset($payment_order_mode)){
+				$payment_order_mode = $payment_order_mode;
 			} else {
-				$data['paymentModeOrder'] = [
-					$payment_order_mode[0],
-					$payment_order_mode[1],
-					$payment_order_mode[2],
-					$payment_order_mode[3],
-					$payment_order_mode[4],
-					$payment_order_mode[5],
-					$payment_order_mode[6],
-					$payment_order_mode[7],
-					$payment_order_mode[8],
-					$payment_order_mode[9]
+				$payment_order_mode = '';
+			}
 
-				];
+
+			if (!$payment_order_mode_raw) {				
+				$data['paymentModeOrder'] = '';
+			} else {				
+				$data['paymentModeOrder'] = $payment_order_mode;
 			}
 
 			if ($this->merchant_logo_url && @getimagesize($this->merchant_logo_url)) {
@@ -889,6 +848,7 @@ EOT;
 			$datastring = $data['mrctCode'] . "|" . $data['merchantTxnRefNumber'] . "|" . $data['Amount'] . "|" . "|" . $data['CustomerId'] . "|" . $data['customerMobNumber'] . "|" . $data['email'] . "||||||||||" . $data['SALT'];
 			$hashed = hash('sha512', $datastring);
 			$data['token'] = $hashed;
+			$checkout_url = wc_get_checkout_url();
 			$logs = $this->create_request_logs($datastring);
 			echo $this->generateOrderForm();
 		?>
@@ -897,7 +857,6 @@ EOT;
 			<form action="<?php echo $this->notify_url ?>" id="response-form" method="POST">
 				<input type="hidden" name="msg" value="" id="response-string">
 			</form>
-
 			<script src="https://www.paynimo.com/paynimocheckout/client/lib/jquery.min.js" type="text/javascript"></script>
 			<script type="text/javascript" src="https://www.paynimo.com/Paynimocheckout/server/lib/checkout.js"></script>
 			<script type="text/javascript">
@@ -906,8 +865,8 @@ EOT;
 				});
 
 				$('#btn-worldline').click(function() {
-
 					var data = <?php echo json_encode($data); ?>;
+					console.log(data);
 					var configJson = {
 						'tarCall': false,
 						'features': {
@@ -929,9 +888,9 @@ EOT;
 							'checkoutElement': data['checkoutElement'],
 							'paymentModeOrder': data['paymentModeOrder'],
 							'merchantLogoUrl': data['merchantLogoUrl'],
+							'merchantId': data['mrctCode'],
 							'merchantMsg': data['merchantMsg'],
 							'disclaimerMsg': data['disclaimerMsg'],
-							'merchantId': data['mrctCode'],
 							'currency': data['currency'],
 							'consumerId': data['CustomerId'],
 							'consumerMobileNo': data['customerMobNumber'],
@@ -976,7 +935,6 @@ EOT;
 
 						}
 					};
-
 				});
 			</script>
 
@@ -1061,7 +1019,7 @@ function callback_S2S()
 	if ($order_id != '') {
 		$order = new WC_Order($order_id);
 		$set_transaction_id = $order->set_transaction_id($transaction_id);
-		if ($order->get_status() !== 'completed') {
+		if ($order->status !== 'completed') {
 			if ($status == '300') {
 				if ($hashstring == $hashed_string_token) {
 					$file_name = 'worldline_logs' . date("Y-m-d") . '.log';
